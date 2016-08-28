@@ -31,7 +31,8 @@
     "karma-webpack": "~1.8.0",
     "mocha": "~3.0.2",
     "webpack": "~1.13.2",
-    "webpack-dev-server": "~1.15.0"
+    "webpack-dev-server": "~1.15.0",
+    "webpack-visualizer-plugin": "~0.1.5"
   },
   "repository": {
     "type": "git",

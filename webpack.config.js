@@ -1,5 +1,6 @@
 const pathUtil = require('path');
 const webpack = require('webpack');
+const Visualizer = require('webpack-visualizer-plugin');
 
 
 const srcPath  = pathUtil.join(__dirname, 'src');
@@ -61,6 +62,16 @@ if (process.env.NODE_ENV === 'production') {
           DEBUG: false
         }
       }
-    })
+    }),
+
+
+    /** 定义一些环境变量 **/
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': '"production"'
+    }),
+
+
+    /** 统计打包后的模块构成 **/
+    new Visualizer()
   );
 }
