@@ -4,18 +4,7 @@
 
 import Validator from './Validator';
 import Alert     from './Alert';
-
-import {
-  hasClass,
-  getValue,
-  setValue,
-  getData,
-  setData,
-  removeData
-} from './util';
-
-
-/* eslint complexity: [2, 11], no-alert: 0 */
+import $         from './dom';
 
 
 class Validation {
@@ -85,7 +74,7 @@ class Validation {
    */
   constructor(elm, options) {
     if (!elm || elm.nodeType !== 1) {
-      throw new Error('invalid element for validation');
+      throw new Error('invalid element for validation, it should be a dom element.');
     }
 
     options = options || {};
@@ -143,16 +132,19 @@ class Validation {
    *  from {String}       - 验证来源
    * @return {Boolean}         - 验证结果
    */
+  /* eslint complexity: [2, 12] */
   validate(options) {
     options = options || {};
 
-    const elm = this.elm;
+    const elm = $(this.elm);
     // 如果验证器关闭，或者表单元素`disabled`忽略此验证
-    if (!this.enabled || elm.disabled || hasClass(elm, 'disabled')) {
+    if (!this.enabled || elm.get().disabled || elm.hasClass('disabled')) {
       return true;
     }
 
-    const value = getValue(elm);
+    let value = elm.val();
+    value = typeof value === 'string' ? value.trim() : value;
+
     const rules = options.rules || this.rules;
 
     let valid = true;
@@ -238,8 +230,8 @@ function createAdvice(self, name) {
  */
 Validation.Handler['default'] = function() {    // eslint-disable-line
   const self = this;
-  const elm = this.elm;
-  const dataField = 'validation-advice-prompt';
+  const elm = $(this.elm);
+  const dataField = 'validationAdvicePrompt';
 
   let timer = null;
   const validate = function() {
@@ -250,37 +242,37 @@ Validation.Handler['default'] = function() {    // eslint-disable-line
     timer = setTimeout(function() {
       timer = null;
     }, 100);
-    removeData(elm, dataField);
+    elm.removeData(dataField);
     self.validate({ from: 'event' });
   };
   const advice = this.advice;
 
   handleInstant(self, elm);
 
-  elm.addEventListener('keydown', function() {
-    if (!getData(elm, dataField)) {
+  elm.on('keydown', function() {
+    if (!elm.data(dataField)) {
       advice.prompt();
-      setData(elm, true);
+      elm.data(dataField, true);
     }
-  }, false);
+  });
 
-  elm.addEventListener('change', validate, false);
+  elm.on('change', validate);
 
   if (is(elm, 'input', 'text') ||
       is(elm, 'textarea')) {
-    elm.addEventListener('blur', validate, false);
+    elm.on('blur', validate);
   } else if (is(elm, 'input', 'radio') ||
       is('input', 'checkbox')) {
-    elm.addEventListener('click', validate, false);
+    elm.on('click', validate);
   }
 };
 
 
 function is(elm, tag, type) {
+  elm = elm.get();
   if (elm.tagName.toLowerCase() !== tag) {
     return false;
   }
-
   return type ? elm.type === type : true;
 }
 
@@ -294,26 +286,26 @@ function handleInstant(self, elm) {
     return;
   }
 
-  setData(elm, 'validationValue', getValue(elm));
+  elm.data('validationValue', elm.val());
   const handler = function() {
-    const last = getData(elm, 'validationValue');
-    const value = getValue(elm);
+    const last = elm.data('validationValue');
+    const value = elm.val();
     if (last === value) {
       return;
     }
 
     if (self.validate({ rules: rules })) {
-      setData(elm, 'validationValue', value);
+      elm.data('validationValue', value);
     } else if (self.current.invert) {
       value && setTimeout(function() {
-        setValue(elm, last);
+        elm.val(last);
       }, 50);
     }
   };
 
-  elm.addEventListener('input', handler, false);
-  elm.addEventListener('keypress', handler, false);
-  elm.addEventListener('keyup', handler, false);
+  elm.on('input', handler);
+  elm.on('keypress', handler);
+  elm.on('keyup', handler);
 }
 
 
@@ -351,7 +343,7 @@ function getMessage(o, message) {
  */
 Validation.Advice.alert = {
   error: function(elm, rule) {
-    alert(rule.error || rule.message);
+    alert(rule.error || rule.message);    // eslint-disable-line
   }
 };
 
@@ -360,13 +352,13 @@ Validation.Advice.alert = {
  * async验证
  */
 Validator.async = function(value, rule, options) {
-  const elm = this.elm;
+  const elm = $(this.elm);
 
   // 上一次的值
-  const last = getData(elm, 'validationLastValue');
+  const last = elm.data('validationLastValue');
   // 数据没变化，则返回上一次验证结果
   if (last === value) {
-    const result = getData(elm, 'validationResult') || {};
+    const result = elm.data('validationResult') || {};
     this.errorMessage = result.errorMessage;
     return result.valid;
   }
@@ -400,8 +392,10 @@ function asyncValidate(self, value, rule, options) {
     }
     flag = true;
 
-    setData(self.elm, 'validationResult', o);
-    setData(self.elm, 'validationLastValue', value);
+    const elm = $(self.elm);
+
+    elm.data('validationResult', o);
+    elm.data('validationLastValue', value);
 
     if (!options.noAdvice) {
       self.errorMessage = o.errorMessage;
