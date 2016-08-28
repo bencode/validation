@@ -1,0 +1,41 @@
+{
+  "name": "@hlj/validation",
+  "version": "0.1.0",
+  "description": "表单/表单域验证组件",
+  "main": "src/index.js",
+  "scripts": {
+    "lint": "eslint src",
+    "test": "karma start",
+    "build": "webpack",
+    "start": "webpack-dev-server --content-base .",
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -o CHANGELOG.md -s"
+  },
+  "devDependencies": {
+    "babel-core": "~6.14.0",
+    "babel-eslint": "~6.1.2",
+    "babel-loader": "~6.2.5",
+    "babel-preset-es2015": "~6.14.0",
+    "babel-preset-stage-0": "~6.5.0",
+    "chai": "~3.5.0",
+    "conventional-changelog-cli": "~1.2.0",
+    "eslint": "~3.4.0",
+    "eslint-loader": "~1.5.0",
+    "karma": "~1.2.0",
+    "karma-babel-preprocessor": "~6.0.1",
+    "karma-chai": "~0.1.0",
+    "karma-coverage": "~1.1.1",
+    "karma-mocha": "~1.1.1",
+    "karma-mocha-reporter": "~2.1.0",
+    "karma-phantomjs-launcher": "~1.0.1",
+    "karma-webpack": "~1.8.0",
+    "mocha": "~3.0.2",
+    "webpack": "~1.13.2",
+    "webpack-dev-server": "~1.15.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@git.hlj.team:10022/npms/validation.git"
+  },
+  "author": "dayu@helijia.com",
+  "license": "ISC"
+}
