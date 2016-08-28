@@ -1,5 +1,2 @@
-export Validation from './Validation';
-
-
-console.log(process.env.NODE_ENV);
-
+export default from './Validation';
+export Validator from './Validator';
