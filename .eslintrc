@@ -1,0 +1,3 @@
+{
+  extends: '@hlj/eslint-config-base'
+}

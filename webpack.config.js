@@ -1,19 +1,20 @@
 const pathUtil = require('path');
 const webpack = require('webpack');
 
+
 const srcPath  = pathUtil.join(__dirname, 'src');
 const distPath = pathUtil.join(__dirname, 'dist');
 
 
-module.exports = {
+exports = module.exports = {
   entry: {
-    app: './src/index.js'
+    validation: './src/index.js'
   },
 
 
   output: {
     path: distPath,
-    filename: 'index.js',
+    filename: '[name].js',
     library: 'Validation',
     libraryTarget: 'umd'
   },
@@ -27,7 +28,7 @@ module.exports = {
     }],
 
 
-    loader: [
+    loaders: [
       {
         test: /\.js$/,
         loader: 'babel',
@@ -36,10 +37,15 @@ module.exports = {
         }
       }
     ],
-  }
+  },
 
 
-  plugins: [
+  plugins: []
+};
+
+
+if (process.env.NODE_ENV === 'production') {
+  exports.plugins.push(
     new webpack.optimize.UglifyJsPlugin({
       compress : {
         sequences     : true,
@@ -56,12 +62,5 @@ module.exports = {
         }
       }
     })
-  ],
-
-
-  resolve: {
-    extensions: ['.js'],
-    alias: {
-    }
-  }
-};
+  );
+}
