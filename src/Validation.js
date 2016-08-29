@@ -2,9 +2,9 @@
  * 表单验证组件
  */
 
-import Validator from './Validator';
-import Alert     from './Alert';
-import $         from './dom';
+import $            from './dom';
+import Validator    from './Validator';
+import AssistAdvice from './AssistAdvice';
 
 
 class Validation {
@@ -24,7 +24,7 @@ class Validation {
     // validate is for regexp or function
     const type = rule.type || rule.validate;
     if (!type) {
-      throw new Error('validate rule required');
+      throw new Error('validate rule required.');
     }
 
     // required
@@ -56,20 +56,20 @@ class Validation {
    * @param {Element} elm   - 表单元素
    * @param {Array} options - 验证配置
    *  {
-   *  advice: {String}  - 出错提示方式，默认为'default'
-   *  handler: {String} - 处理方式，默认为'default'
-   *  rules:  - 验证规则
-   *  [
-   *    {
-   *      type: {String}    - 验证器名称
-   *      param: {String|Array|Object} - 验证器参数，如果没有, rule将作为参数
-   *      message|error: {String} - 出错信息
-   *      prompt: {String}        - 提示信息
-   *      success: {String}       - 验证成功信息
-   *      force: {Boolean}        - 为空时是否强制校验
-   *      not: {Boolean}          - 反向
-   *    }
-   *  ]
+   *    advice: {String}  - 出错提示方式，默认为'default'
+   *    handler: {String} - 处理方式，默认为'default'
+   *    rules:  - 验证规则
+   *    [
+   *      {
+   *        type: {String}    - 验证器名称
+   *        param: {String|Array|Object} - 验证器参数，如果没有, 当前rule对象将作为参数
+   *        message|error: {String} - 出错信息
+   *        prompt: {String}        - 提示信息
+   *        success: {String}       - 验证成功信息
+   *        force: {Boolean}        - 为空时是否强制校验
+   *        not: {Boolean}          - 反向校验
+   *      }
+   *    ]
    *  }
    */
   constructor(elm, options) {
@@ -130,6 +130,7 @@ class Validation {
    * @param {Object} options   -  配置项
    *  noAdvice {Boolean}  - 仅验证不进行提示
    *  from {String}       - 验证来源
+   *
    * @return {Boolean}         - 验证结果
    */
   /* eslint complexity: [2, 12] */
@@ -145,6 +146,7 @@ class Validation {
     let value = elm.val();
     value = typeof value === 'string' ? value.trim() : value;
 
+    // 允许调用时使用自定义rules进行校验
     const rules = options.rules || this.rules;
 
     let valid = true;
@@ -167,16 +169,10 @@ class Validation {
 
     options.noAdvice || this.advice[valid ? 'success' : 'error'](rule);
 
-    /*
-    trigger('validate', {
-      valid: valid,
-      rule: rule
-    });
-    */
-
     return valid;
   }
 }
+//~ Validation
 
 
 /**
@@ -195,8 +191,7 @@ Validation.Handler = {};
 Validation.Validator = Validator;
 
 
-module.exports = Validation;
-//~
+export default Validation;
 
 
 /*
@@ -211,18 +206,36 @@ function createAdvice(self, name) {
   return {
     prompt: function() {
       const rule = self.current || self.rules[0];
-      advice.prompt && advice.prompt(self, rule);
+      if (advice.prompt) {
+        advice.prompt(self, getMessage(self, rule.prompt));
+      }
     },
 
     success: function(rule) {
-      advice.success && advice.success(self, rule);
+      if (advice.success) {
+        advice.success(self, getMessage(self, rule.success));
+      }
     },
 
     error: function(rule) {
-      advice.error && advice.error(self, rule);
+      if (advice.error) {
+        const message = self.errorMessage !== null ?  // 验证前会被设置为null，不以空判断是因为使用方有可能会设置为''
+            self.errorMessage : (rule.error || rule.message);
+        advice.error(self, getMessage(self, message));
+      }
     }
   };
 }
+
+
+function getMessage(o, message) {
+  if (o.messages) {
+    const code = message;
+    message = o.messages[code] || code;
+  }
+  return message;
+}
+
 
 
 /**
@@ -245,6 +258,7 @@ Validation.Handler['default'] = function() {    // eslint-disable-line
     elm.removeData(dataField);
     self.validate({ from: 'event' });
   };
+
   const advice = this.advice;
 
   handleInstant(self, elm);
@@ -258,12 +272,13 @@ Validation.Handler['default'] = function() {    // eslint-disable-line
 
   elm.on('change', validate);
 
-  if (is(elm, 'input', 'text') ||
+  if (is(elm, 'input', 'radio') ||
+      is(elm, 'input', 'checkbox')) {
+    elm.on('click', validate);
+  } else if (
+      is(elm, 'input') ||
       is(elm, 'textarea')) {
     elm.on('blur', validate);
-  } else if (is(elm, 'input', 'radio') ||
-      is('input', 'checkbox')) {
-    elm.on('click', validate);
   }
 };
 
@@ -277,6 +292,9 @@ function is(elm, tag, type) {
 }
 
 
+/*
+ * 如果规则配置了`instant`，则输入变化时都会进行校验
+ */
 function handleInstant(self, elm) {
   const rules = self.rules.filter(function(rule) {
     return rule.instant;
@@ -312,116 +330,14 @@ function handleInstant(self, elm) {
 /**
  * 默认提示器，采用FormAlert方式提示
  */
-Validation.Advice['default'] = {    // eslint-disable-line
-  prompt: function(o, rule) {
-    Alert.info(o.elm, getMessage(o, rule.prompt));
-  },
-
-  success: function(o, rule) {
-    Alert.success(o.elm, getMessage(o, rule.success));
-  },
-
-  error: function(o, rule) {
-    const message = o.errorMessage !== null ?  // 验证前会被设置为null，不以空判断是因为使用方有可能会设置为''
-        o.errorMessage : (rule.error || rule.message);
-    Alert.error(o.elm, getMessage(o, message));
-  }
-};
-
-
-function getMessage(o, message) {
-  if (o.messages) {
-    const code = message;
-    message = o.messages[code] || code;
-  }
-  return message;
-}
+Validation.Advice['default'] = new AssistAdvice();  // eslint-disable-line
 
 
 /**
  * 采用alert方法提示错误
  */
 Validation.Advice.alert = {
-  error: function(elm, rule) {
-    alert(rule.error || rule.message);    // eslint-disable-line
+  error: function(v, message) {
+    alert(message);   // eslint-disable-line
   }
 };
-
-
-/*
- * async验证
- */
-Validator.async = function(value, rule, options) {
-  const elm = $(this.elm);
-
-  // 上一次的值
-  const last = elm.data('validationLastValue');
-  // 数据没变化，则返回上一次验证结果
-  if (last === value) {
-    const result = elm.data('validationResult') || {};
-    this.errorMessage = result.errorMessage;
-    return result.valid;
-  }
-
-  // 走异步验证
-  asyncValidate(this, value, rule, options);
-  this.errorMessage = ''; // 不显示出错信息，等待异步验证结果
-  // 如果从来没异步验证过，则让其通过(直接点击submit事件)
-  // 如果表单域触发的，就让其暂时验证通过
-  // 其他情况，让其验证不通过(比如submit)
-  return last === undefined || options.from === 'event';
-};
-
-
-function asyncValidate(self, value, rule, options) {
-  const validate = rule.validate;
-  if (!validate) {
-    throw new Error('rule.validate required');
-  }
-
-  const defer = validate.call(self, value, rule);
-  if (!defer || typeof defer.then !== 'function') {
-    throw new Error('async validate should return a promise object');
-  }
-
-  let flag = false;
-  function done(o) {
-    // 只允许执行一次done
-    if (flag) {
-      return;
-    }
-    flag = true;
-
-    const elm = $(self.elm);
-
-    elm.data('validationResult', o);
-    elm.data('validationLastValue', value);
-
-    if (!options.noAdvice) {
-      self.errorMessage = o.errorMessage;
-      self.advice[o.valid ? 'success' : 'error'](rule);
-    }
-  }
-
-  // 超时
-  setTimeout(function() {
-    done({ valid: false, errorMessage: Validation.Messages.Timeout });
-  }, 5000);
-
-  defer.then(function(o) {
-    o = o || {};
-    done({ valid: o.valid, errorMessage: o.errorMessage });
-  }, function() {
-    done({ valid: false, errorMessage: Validation.Messages.NetworkError });
-  });
-}
-
-
-/**
- * 用于自定义message
- */
-Validation.Messages = {
-  Timeout: 'timeout',
-  NetworkError: 'network error'
-};
-

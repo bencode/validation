@@ -1,3 +1,7 @@
+import $ from './dom';
+import Messages from './Messages';
+
+
 /**
  * 内置验证器
  */
@@ -134,6 +138,77 @@ function range(v, options, pattern) {
   v = parseFloat(v);
   return min <= v && v <= max;
 }
+
+
+
+/*
+ * async验证
+ */
+exports.async = function(value, rule, options) {
+  const elm = $(this.elm);
+
+  // 上一次的值
+  const last = elm.data('validationLastValue');
+  // 数据没变化，则返回上一次验证结果
+  if (last === value) {
+    const result = elm.data('validationResult') || {};
+    this.errorMessage = result.errorMessage;
+    return result.valid;
+  }
+
+  // 走异步验证
+  asyncValidate(this, value, rule, options);
+  this.errorMessage = ''; // 不显示出错信息，等待异步验证结果
+  // 如果从来没异步验证过，则让其通过(直接点击submit事件)
+  // 如果表单域触发的，就让其暂时验证通过
+  // 其他情况，让其验证不通过(比如submit)
+  return last === undefined || options.from === 'event';
+};
+
+
+function asyncValidate(self, value, rule, options) {
+  const validate = rule.validate;
+  if (!validate) {
+    throw new Error('rule.validate required');
+  }
+
+  const defer = validate.call(self, value, rule);
+  if (!defer || typeof defer.then !== 'function') {
+    throw new Error('async validate should return a promise object');
+  }
+
+  let flag = false;
+  function done(o) {
+    // 只允许执行一次done
+    if (flag) {
+      return;
+    }
+    flag = true;
+
+    const elm = $(self.elm);
+
+    elm.data('validationResult', o);
+    elm.data('validationLastValue', value);
+
+    if (!options.noAdvice) {
+      self.errorMessage = o.errorMessage;
+      self.advice[o.valid ? 'success' : 'error'](rule);
+    }
+  }
+
+  // 超时
+  setTimeout(function() {
+    done({ valid: false, errorMessage: Messages.Timeout });
+  }, 5000);
+
+  defer.then(function(o) {
+    o = o || {};
+    done({ valid: o.valid, errorMessage: o.errorMessage });
+  }, function() {
+    done({ valid: false, errorMessage: Messages.NetworkError });
+  });
+}
+//~ async
 
 
 export default exports;

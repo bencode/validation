@@ -25,6 +25,27 @@ class Dom {
   }
 
 
+  addClass(names) {
+    setClass(this.elm, names, (list, name) => {
+      if (list.indexOf(name) === -1) {
+        list.push(name);
+      }
+      return list;
+    });
+  }
+
+
+  removeClass(names) {
+    setClass(this.elm, names, (list, name) => {
+      const index = list.indexOf(name);
+      if (index !== -1) {
+        list.splice(index, 1);
+      }
+      return list;
+    });
+  }
+
+
   val(value) {
     const { elm } = this;
     if (value === undefined) {
@@ -58,6 +79,16 @@ class Dom {
 }
 
 
-export default function(elm) {
-  return new Dom(elm);
+function setClass(elm, names, reducer) {
+  const list = elm.className.split(/\s+/g);
+  names = names.split(/\s+/g);
+  elm.className = names.reduce(reducer, list).join(' ');
 }
+
+
+const exports = global.jQuery || global.Zepto ||
+function(elm) {
+  return new Dom(elm);
+};
+
+export default exports;

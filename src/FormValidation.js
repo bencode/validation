@@ -1,12 +1,12 @@
-import Validation from './Validation';
 import $  from './dom';
+import Validation from './Validation';
 
 
 class FormValidation {
 
   /**
    * 表单验证
-   * @param {jQuery} form - 表单
+   * @param {jQuery} form    - 表单
    * @param {Object} options - 额外的参数
    *  - validateOnSubmit {Boolean} 默认表单submit时会验证，如果设置此属性为false，则不会处理submit事件
    */
@@ -20,22 +20,27 @@ class FormValidation {
         form.tagName.toLowerCase() === 'form') {
       handleForm(this);
     }
-
-    //handleRefresh(this);
   }
 
 
+  /**
+   * 校验表单
+   *
+   * @param {Object} options - 配置参数
+   *  - fields {Array}  允许只对指定表单域进行校验
+   *
+   * @return {Boolean}       - 校验结果
+   */
   validate(options) {
     options = options || {};
 
-    let vs = this.validations;
-    if (options.fields) {
-      vs = [];
-      options.fields.forEach(elm => {
-        const v = $(elm).data('validation');
-        v && vs.push(v);
-      });
-    }
+    const vs = options.fields ?
+      options.fields.reduce((list, elm) => {
+        const v = (elm.data('validation'));
+        v && list.push(v);
+        return list;
+      }, []) :
+      this.validations;
 
     let valid = true;
     let flag = false;
@@ -53,27 +58,30 @@ class FormValidation {
   }
 
 
+  /**
+   * 有时候当表单发生变化时（重绘时
+   * 需要refresh重新初始化验证器
+   */
   refresh() {
     const form = this.form;
     const options = this.options;
 
-    const inputs = Array.from(form.elements).filter(input => {
-      return $(input).data('validate');
-    });
+    const inputs = form.querySelectorAll('input,select,textarea');
 
-    const vs = [];
-    inputs.forEach(input => {
+    this.validations = Array.from(inputs).reduce((list, input) => {
       input = $(input);
       let v = input.data('validation');
       if (!v) {
-        const opts = Object.assign({}, options, input.data('validate'));
-        v = new Validation(input.get(), opts);
-        input.data('validation', v);
+        const vopts = input.data('validate');
+        if (vopts) {
+          const opts = Object.assign({}, options, vopts);
+          v = new Validation(input.get(), opts);
+          input.data('validation', v);
+        }
       }
-      vs.push(v);
-    });
-
-    this.validations = vs;
+      v && list.push(v);
+      return list;
+    }, []);
   }
 }
 //~ FormValidation
@@ -86,15 +94,6 @@ function handleForm(self) {
     }
   });
 }
-
-
-/*
-function handleRefresh(self) {
-  $(self.form).on('validation-refresh', function() {
-    self.refresh();
-  });
-}
-*/
 
 
 function focus(elm) {

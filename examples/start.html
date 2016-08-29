@@ -17,13 +17,13 @@
           Email:
         </dt>
         <dd>
-        <input type="text" data-validate='{ "type": "email", "message": "Email地址不正确。" }' />
+          <input type="text" data-validate='{ "type": "email", "message": "Email地址不正确。" }' />
         </dd>
         <dt>
           Price:
         </dt>
         <dd>
-          <input type="text" />
+          <input type="text" data-validate='{ "type": "regexp", "pattern": "^\\d{2}(\\.\\d{2})?$", "message": "请正确输入价格(xx.xx)" }' />
         </dd>
       </dl>
       <input type="submit" value="submit" />
