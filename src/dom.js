@@ -1,3 +1,8 @@
+/*
+ * 因为validation库不依赖其他类库
+ * 所以需要包装一个简单的jquery api兼容的工具类
+ * 后续有必要也可以方便切换
+ */
 class Dom {
   constructor(elm) {
     this.elm = elm;
@@ -40,7 +45,7 @@ class Dom {
       try {
         return JSON.parse(json);
       } catch (e) {
-        // ignore
+        console.error('invalid json: ' + json);   // eslint-disable-line
       }
     }
     return undefined;
