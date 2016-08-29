@@ -54,6 +54,9 @@ class FormValidation {
         }
       }
     }
+
+    adviceForm(this, valid);
+
     return valid;
   }
 
@@ -72,10 +75,16 @@ class FormValidation {
       input = $(input);
       let v = input.data('validation');
       if (!v) {
-        const vopts = input.data('validate');
-        if (vopts) {
-          const opts = Object.assign({}, options, vopts);
+        const rules = input.data('validate');
+        if (rules) {
+          const opts = Object.assign({}, options);
+          opts.rules = rules;
           v = new Validation(input.get(), opts);
+          v.on('validate', event => {
+            if (event.from === 'event') {
+              tryAdviceForm(this);
+            }
+          });
           input.data('validation', v);
         }
       }
@@ -103,6 +112,35 @@ function focus(elm) {
     console.error(e);   // eslint-disable-line
   }
 }
+
+
+function adviceForm(self, valid) {
+  const cns = self.options.formClassNames || {
+    error: 'validation-form-error',
+    success: 'validation-form-success'
+  };
+
+  const form = $(self.form);
+  form.removeClass(`${cns.error || ''} ${cns.success || ''}`);
+  const cn = cns[valid ? 'success' : 'error'];
+  cn && form.addClass(cn);
+}
+
+
+function tryAdviceForm(self) {
+  const vs = self.validations;
+  const error = vs.some(v => v.valid === false);
+  if (error) {
+    adviceForm(self, false);
+    return;
+  }
+
+  const success = vs.every(v => v.valid === true);
+  if (success) {
+    adviceForm(self, true);
+  }
+}
+
 
 export default FormValidation;
 

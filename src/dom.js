@@ -80,13 +80,23 @@ class Dom {
 
 
 function setClass(elm, names, reducer) {
-  const list = elm.className.split(/\s+/g);
-  names = names.split(/\s+/g);
+  names = split(names);
+  if (!names.length) {
+    return;
+  }
+
+  const list = split(elm.className);
   elm.className = names.reduce(reducer, list).join(' ');
 }
 
 
-const exports = global.jQuery || global.Zepto ||
+function split(str) {
+  str = str.trim();
+  return str ? str.split(/\s+/g) : [];
+}
+
+
+const exports = window.jQuery || window.Zepto ||
 function(elm) {
   return new Dom(elm);
 };

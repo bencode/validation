@@ -2,7 +2,9 @@ import $ from './dom';
 
 
 class AssistAdvice {
-  constructor(options) {
+  constructor(vo, options) {
+    this.elm = vo.elm;
+
     this.options = Object.assign({
       fieldClassNames: {
         prompt: 'validation-prompt',
@@ -36,7 +38,6 @@ class AssistAdvice {
   }
 
 
-  /* eslint max-statements: [2, 30] */
   show(elm, message, type) {
     type = type || 'error';
     const options = this.options;
@@ -45,14 +46,15 @@ class AssistAdvice {
     const $assist = $(assist);
     const $elm = $(elm);
 
-    const fcns = options.fieldClassNames;
-    const acns = options.assistClassNames;
+    const fieldCns = options.fieldClassNames;
+    const assistCns = options.assistClassNames;
 
-    $elm.removeClass(`${fcns.prompt} ${fcns.success} ${fcns.error}`);
-    $assist.removeClass(`${acns.prompt} ${acns.success} ${acns.error}`);
+    removeClass($elm, fieldCns);
+    removeClass($assist, assistCns);
 
-    $elm.addClass(fcns[type]);
-    $assist.addClass(acns[type]);
+    fieldCns[type] && $elm.addClass(fieldCns[type]);
+    assistCns[type] && $assist.addClass(assistCns[type]);
+
     if (message) {
       assist.innerHTML = message;
       assist.style = 'display: ;';
@@ -88,6 +90,11 @@ function createAssist(elm) {
     elm.parentNode.appendChild(assist);
   }
   return assist;
+}
+
+
+function removeClass(elm, map) {
+  elm.removeClass(`${map.prompt || ''} ${map.success || ''} ${map.error || ''}`);
 }
 
 

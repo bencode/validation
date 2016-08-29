@@ -2,12 +2,13 @@
  * 表单验证组件
  */
 
+import EventEmitter from 'events';
 import $            from './dom';
 import Validator    from './Validator';
 import AssistAdvice from './AssistAdvice';
 
 
-class Validation {
+class Validation extends EventEmitter {
 
   /**
    * 使用一个验证规则对值进行验证
@@ -73,6 +74,8 @@ class Validation {
    *  }
    */
   constructor(elm, options) {
+    super();
+
     if (!elm || elm.nodeType !== 1) {
       throw new Error('invalid element for validation, it should be a dom element.');
     }
@@ -133,7 +136,7 @@ class Validation {
    *
    * @return {Boolean}         - 验证结果
    */
-  /* eslint complexity: [2, 12] */
+  /* eslint complexity: [2, 12], max-statements: [2, 22] */
   validate(options) {
     options = options || {};
 
@@ -166,8 +169,15 @@ class Validation {
 
     // 当前规则
     this.current = rule;
+    this.valid = valid;
 
     options.noAdvice || this.advice[valid ? 'success' : 'error'](rule);
+
+    this.emit('validate', {
+      valid: valid,
+      rule: rule,
+      from: options.from
+    });
 
     return valid;
   }
@@ -198,10 +208,12 @@ export default Validation;
  * 创建和包装提示器
  */
 function createAdvice(self, name) {
-  const advice = Validation.Advice[name];
-  if (!advice) {
+  const Advice = Validation.Advice[name];
+  if (!Advice) {
     throw new Error('invalid advice: ' + name);
   }
+
+  const advice = new Advice(self, self.options);
 
   return {
     prompt: function() {
@@ -330,14 +342,16 @@ function handleInstant(self, elm) {
 /**
  * 默认提示器，采用FormAlert方式提示
  */
-Validation.Advice['default'] = new AssistAdvice();  // eslint-disable-line
+Validation.Advice.default = AssistAdvice;
 
 
 /**
  * 采用alert方法提示错误
  */
-Validation.Advice.alert = {
-  error: function(v, message) {
-    alert(message);   // eslint-disable-line
+class AlertAdvice {
+  error(message) {
+    alert(message); // eslint-disable-line
   }
-};
+}
+
+Validation.Advice.alert = AlertAdvice;
