@@ -1,8 +1,8 @@
 {
   "name": "@hlj/validation",
-  "version": "0.1.0",
+  "version": "0.1.3",
   "description": "表单/表单域验证组件",
-  "main": "src/index.js",
+  "main": "dist/validation.js",
   "scripts": {
     "lint": "eslint src",
     "test": "karma start",
@@ -21,6 +21,7 @@
     "conventional-changelog-cli": "~1.2.0",
     "eslint": "~3.4.0",
     "eslint-loader": "~1.5.0",
+    "events": "~1.1.1",
     "karma": "~1.2.0",
     "karma-babel-preprocessor": "~6.0.1",
     "karma-chai": "~0.1.0",
@@ -31,7 +32,8 @@
     "karma-webpack": "~1.8.0",
     "mocha": "~3.0.2",
     "webpack": "~1.13.2",
-    "webpack-dev-server": "~1.15.0"
+    "webpack-dev-server": "~1.15.0",
+    "webpack-visualizer-plugin": "~0.1.5"
   },
   "repository": {
     "type": "git",

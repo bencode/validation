@@ -1,32 +1,41 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <script src="/index.js"></script>
+    <script src="/validation.js"></script>
   </head>
   <body>
     <h1>开始使用</h1>
-    <form action="">
+    <form id="my-form" action="">
       <dl>
         <dt>
           Name:
         </dt>
         <dd>
-          <input type="text" />
+          <input type="text" data-validate='{ "type": "required", "message": "请输入名称。" }' />
         </dd>
         <dt>
           Email:
         </dt>
         <dd>
-          <input type="text" />
+          <input type="text" data-validate='{ "type": "email", "message": "Email地址不正确。" }' />
         </dd>
         <dt>
           Price:
         </dt>
         <dd>
-          <input type="text" />
+          <input type="text" data-validate='{ "type": "regexp", "pattern": "^\\d{2}(\\.\\d{2})?$", "message": "请正确输入价格(xx.xx)" }' />
         </dd>
       </dl>
       <input type="submit" value="submit" />
     </form>
+    <script>
+      var form = document.getElementById('my-form');
+      new Validation.FormValidation(form, {
+        assistClassNames: {
+          element: 'ui message',
+          error: 'error'
+        }
+      });
+    </script>
   </body>
 </html>
