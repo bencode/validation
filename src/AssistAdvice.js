@@ -72,13 +72,19 @@ class AssistAdvice {
 function getAssist(elm, cn) {
   let assist = elm.nextSibling;
   while (assist) {
-    if (assist.nodeType === 1 &&
-        $(assist).hasClass(cn)) {
+    if (assist.nodeType === 1 && hasClass(assist, cn)) {
       return assist;
     }
     assist = assist.nextSibling;
   }
   return null;
+}
+
+
+function hasClass(elm, cns) {
+  elm = $(elm);
+  cns = cns.split(/\s+/g);
+  return cns.every(cn => elm.hasClass(cn));
 }
 
 
