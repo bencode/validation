@@ -42,7 +42,9 @@ class AssistAdvice {
     type = type || 'error';
     const options = this.options;
 
-    const assist = options.getAssist(elm) || createAssist(elm);
+    const assistClassName = options.assistClassNames.element || 'validation-assist';
+    const assist = options.getAssist(elm, assistClassName) ||
+        createAssist(elm, assistClassName);
     const $assist = $(assist);
     const $elm = $(elm);
 
@@ -67,11 +69,11 @@ class AssistAdvice {
 //~ AssistAdvice
 
 
-function getAssist(elm) {
+function getAssist(elm, cn) {
   let assist = elm.nextSibling;
   while (assist) {
     if (assist.nodeType === 1 &&
-        $(assist).hasClass('validation-assist')) {
+        $(assist).hasClass(cn)) {
       return assist;
     }
     assist = assist.nextSibling;
@@ -80,9 +82,9 @@ function getAssist(elm) {
 }
 
 
-function createAssist(elm) {
+function createAssist(elm, cn) {
   const assist = document.createElement('div');
-  $(assist).addClass('validation-assist');
+  $(assist).addClass(cn);
   const next = elm.nextSibling;
   if (next) {
     elm.parentNode.insertBefore(assist, next);

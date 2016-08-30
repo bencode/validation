@@ -30,7 +30,12 @@
     </form>
     <script>
       var form = document.getElementById('my-form');
-      new Validation.FormValidation(form);
+      new Validation.FormValidation(form, {
+        assistClassNames: {
+          element: 'ui message',
+          error: 'error'
+        }
+      });
     </script>
   </body>
 </html>
