@@ -142,7 +142,7 @@ class Validation extends EventEmitter {
 
     const elm = $(this.elm);
     // 如果验证器关闭，或者表单元素`disabled`忽略此验证
-    if (!this.enabled || elm.get().disabled || elm.hasClass('disabled')) {
+    if (!this.enabled || elm[0].disabled || elm.hasClass('disabled')) {
       return true;
     }
 
@@ -296,7 +296,7 @@ Validation.Handler['default'] = function() {    // eslint-disable-line
 
 
 function is(elm, tag, type) {
-  elm = elm.get();
+  elm = elm[0];
   if (elm.tagName.toLowerCase() !== tag) {
     return false;
   }

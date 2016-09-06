@@ -79,7 +79,7 @@ class FormValidation {
         if (rules) {
           const opts = Object.assign({}, options);
           opts.rules = rules;
-          v = new Validation(input.get(), opts);
+          v = new Validation(input[0], opts);
           v.on('validate', event => {
             if (event.from === 'event') {
               tryAdviceForm(this);

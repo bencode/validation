@@ -6,13 +6,8 @@
 class Dom {
   constructor(elm) {
     this.elm = elm;
+    this[0] = elm;
   }
-
-
-  get() {
-    return this.elm;
-  }
-
 
   on(name, fn) {
     this.elm.addEventListener(name, fn, false);
