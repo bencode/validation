@@ -21,6 +21,7 @@
     "conventional-changelog-cli": "~1.2.0",
     "eslint": "~3.4.0",
     "eslint-loader": "~1.5.0",
+    "eslint-plugin-react": "~6.2.0",
     "events": "~1.1.1",
     "karma": "~1.2.0",
     "karma-babel-preprocessor": "~6.0.1",
