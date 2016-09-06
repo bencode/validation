@@ -65,13 +65,11 @@ if (process.env.NODE_ENV === 'production') {
     }),
 
 
-    /** 定义一些环境变量 **/
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': '"production"'
     }),
 
 
-    /** 统计打包后的模块构成 **/
     new Visualizer()
   );
 }

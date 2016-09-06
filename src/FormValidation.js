@@ -1,4 +1,4 @@
-import $  from './dom';
+import $ from './dom';
 import Validation from './Validation';
 
 

@@ -1,7 +1,7 @@
 {
-  "name": "@hlj/validation",
-  "version": "0.1.4",
-  "description": "表单/表单域验证组件",
+  "name": "hummer-validation",
+  "version": "1.0.0",
+  "description": "一个功能强大的表单、表单域验证组件。",
   "main": "dist/validation.js",
   "scripts": {
     "lint": "eslint src",
@@ -11,7 +11,6 @@
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -o CHANGELOG.md -s"
   },
   "devDependencies": {
-    "@hlj/eslint-config-base": "~1.0.7",
     "babel-core": "~6.14.0",
     "babel-eslint": "~6.1.2",
     "babel-loader": "~6.2.5",
@@ -20,6 +19,8 @@
     "chai": "~3.5.0",
     "conventional-changelog-cli": "~1.2.0",
     "eslint": "~3.4.0",
+    "eslint-config-bcd": "~1.0.0",
+    "eslint-config-bce": "~1.2.0",
     "eslint-loader": "~1.5.0",
     "eslint-plugin-react": "~6.2.0",
     "events": "~1.1.1",
@@ -38,8 +39,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "ssh://git@git.hlj.team:10022/npms/validation.git"
+    "url": "git+https://github.com/bencode/hummer-validation.git"
   },
-  "author": "dayu@helijia.com",
-  "license": "ISC"
+  "author": "bencode@163.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bencode/hummer-validation/issues"
+  },
+  "homepage": "https://github.com/bencode/hummer-validation#readme"
 }
