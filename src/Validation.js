@@ -249,6 +249,10 @@ function getMessage(o, message) {
 }
 
 
+Validation.Handler.none = function() {
+  // ignore
+};
+
 
 /**
  * 默认处理器
@@ -349,7 +353,7 @@ Validation.Advice.default = AssistAdvice;
  * 采用alert方法提示错误
  */
 class AlertAdvice {
-  error(message) {
+  error(o, message) {
     alert(message); // eslint-disable-line
   }
 }
